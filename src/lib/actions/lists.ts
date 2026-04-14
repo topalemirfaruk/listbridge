@@ -146,8 +146,8 @@ export async function getListItems(listId: string) {
   const { data, error } = await supabase
     .from('list_items')
     .select(`
-      id, order_index, status, priority, due_date, custom_values, created_at, updated_at,
-      items!inner(id, title, notes, is_deleted, created_at)
+      id, list_id, item_id, order_index, status, priority, due_date, custom_values, created_at, updated_at,
+      items!inner(id, title, notes, is_deleted, created_at, updated_at, workspace_id, created_by)
     `)
     .eq('list_id', listId)
     .eq('items.is_deleted', false)
@@ -158,6 +158,8 @@ export async function getListItems(listId: string) {
   return (data || []).map(row => ({
     listItem: {
       id: row.id,
+      listId: row.list_id,
+      itemId: row.item_id,
       orderIndex: row.order_index,
       status: row.status,
       priority: row.priority,
@@ -170,6 +172,11 @@ export async function getListItems(listId: string) {
       id: (row.items as any).id,
       title: (row.items as any).title,
       notes: (row.items as any).notes,
+      createdAt: (row.items as any).created_at,
+      updatedAt: (row.items as any).updated_at,
+      workspaceId: (row.items as any).workspace_id,
+      createdBy: (row.items as any).created_by,
+      isDeleted: (row.items as any).is_deleted,
     },
   }))
 }
